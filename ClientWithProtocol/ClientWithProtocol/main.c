@@ -74,19 +74,19 @@ int main(int argc, char *argv[])
 		if (c == '1')
 		{
 			// SENDING command SUMAR and parameters to the server
-			strcpy(sendBuff, "SUMAR");
-			send(s, sendBuff, sizeof(sendBuff), 0);
-			strcpy(sendBuff, "2");
+			strcpy(sendBuff, "SUMAR"); // el comando que quieres que el servido ejecute
+			send(s, sendBuff, sizeof(sendBuff), 0);// lo envias
+			strcpy(sendBuff, "2"); //los datos que quieras enviar
 			send(s, sendBuff, sizeof(sendBuff), 0);
 			strcpy(sendBuff, "3");
 			send(s, sendBuff, sizeof(sendBuff), 0);
 			strcpy(sendBuff, "5");
 			send(s, sendBuff, sizeof(sendBuff), 0);
-			strcpy(sendBuff, "SUMAR-END");
+			strcpy(sendBuff, "SUMAR-END");// la señal de que ya has terminado de enviar datos
 			send(s, sendBuff, sizeof(sendBuff), 0);
 
 			// RECEIVING response to command SUMAR from the server
-			recv(s, recvBuff, sizeof(recvBuff), 0);
+			recv(s, recvBuff, sizeof(recvBuff), 0);// lo que recives del servidor
 			printf("Suma = %s \n", recvBuff);
 		}
 
