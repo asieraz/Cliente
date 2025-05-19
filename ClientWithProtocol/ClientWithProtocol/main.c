@@ -11,7 +11,7 @@ char menu()
 	printf("\n");
 	printf("Elige la OPCION que desees: \n");
 	printf("1. Sumar (2 + 3 + 5) \n");
-	printf("2. Raiz cuadrada (9) \n");
+	printf("2. Mostrar productos \n");
 	printf("3. Obtener IP del servidor \n");
 	printf("4. Salir \n\n");
 	printf("Opcion: ");
@@ -92,17 +92,16 @@ int main(int argc, char *argv[])
 
 		if (c == '2')
 		{
-			// SENDING command RAIZ and parameter to the server
-			strcpy(sendBuff, "RAIZ");
+			// MOSTRAR los profudusctos
+			strcpy(sendBuff, "MOSTRAR");
 			send(s, sendBuff, sizeof(sendBuff), 0);
-			strcpy(sendBuff, "9");
-			send(s, sendBuff, sizeof(sendBuff), 0);
-			strcpy(sendBuff, "RAIZ-END");
-			send(s, sendBuff, sizeof(sendBuff), 0);
-
-			// RECEIVING response to command RAIZ from the server
-			recv(s, recvBuff, sizeof(recvBuff), 0);
-			printf("Raiz cuadrada = %s \n", recvBuff);
+			do {
+				memset(recvBuff, 0, sizeof(recvBuff));
+			    recv(s, recvBuff, sizeof(recvBuff), 0);
+			    if (strcmp(recvBuff, "MOSTRAR-END") != 0) {
+			    	printf("%s", recvBuff);
+			                }
+			    } while (strcmp(recvBuff, "MOSTRAR-END") != 0);
 		}
 
 		if (c == '3')
