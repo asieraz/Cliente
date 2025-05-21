@@ -13,7 +13,8 @@ char menu()
 	printf("1. Sumar (2 + 3 + 5) \n");
 	printf("2. Mostrar productos \n");
 	printf("3. Obtener IP del servidor \n");
-	printf("4. Salir \n\n");
+	printf("4. Añadir stock a un producto \n"); // NUEVA OPCIÓN
+	printf("5. Salir \n\n");
 	printf("Opcion: ");
 	char opcion = getchar();
 
@@ -117,13 +118,44 @@ int main(int argc, char *argv[])
 			printf("IP del servidor = %s \n", recvBuff);
 		}
 
-		if (c == '4')
+		if(c == '4') {
+			char idStr[20], cantidadStr[20];
+
+			// Leer ID de producto
+			printf("Introduce el ID del producto: ");
+			fgets(idStr, sizeof(idStr), stdin);
+			idStr[strcspn(idStr, "\n")] = '\0'; // Quitar salto de línea
+
+			// Leer cantidad a añadir
+			printf("Introduce la cantidad a añadir: ");
+			fgets(cantidadStr, sizeof(cantidadStr), stdin);
+			cantidadStr[strcspn(cantidadStr, "\n")] = '\0';
+
+			// Enviar comando al servidor
+			strcpy(sendBuff, "Anadir stock");
+			send(s, sendBuff, sizeof(sendBuff), 0);
+
+			// Enviar ID de producto
+			strcpy(sendBuff, idStr);
+			send(s, sendBuff, sizeof(sendBuff), 0);
+
+			// Enviar cantidad
+			strcpy(sendBuff, cantidadStr);
+			send(s, sendBuff, sizeof(sendBuff), 0);
+
+			// Recibir confirmación
+			memset(recvBuff, 0, sizeof(recvBuff));
+			recv(s, recvBuff, sizeof(recvBuff), 0);
+			printf("%s\n", recvBuff);
+		}
+
+		if (c == '5')
 		{
 			// SENDING command EXIT
 			strcpy(sendBuff, "EXIT");
 			send(s, sendBuff, sizeof(sendBuff), 0);
 		}
-	}while(c != '4');
+	}while(c != '5');
 
 	// CLOSING the socket and cleaning Winsock...
 	closesocket(s);
