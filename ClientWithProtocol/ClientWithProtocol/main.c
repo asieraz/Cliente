@@ -14,7 +14,8 @@ char menu()
 	printf("2. Mostrar productos \n");
 	printf("3. Obtener IP del servidor \n");
 	printf("4. Añadir stock a un producto \n"); // NUEVA OPCIÓN
-	printf("5. Salir \n\n");
+	printf("5. Compra \n"); // NUEVA OPCIÓN
+	printf("6. Salir \n\n");
 	printf("Opcion: ");
 	char opcion = getchar();
 
@@ -149,13 +150,65 @@ int main(int argc, char *argv[])
 			printf("%s\n", recvBuff);
 		}
 
-		if (c == '5')
+		if(c == '5') {
+					// Enviar comando al servidor
+					strcpy(sendBuff, "REALIZAR COMPRA");
+					send(s, sendBuff, sizeof(sendBuff), 0);
+
+					while (1) {
+						// Recibir petición de ID de producto
+						memset(recvBuff, 0, sizeof(recvBuff));
+						recv(s, recvBuff, sizeof(recvBuff), 0);
+						printf("%s ", recvBuff);
+
+						// Enviar ID de producto
+						fgets(sendBuff, sizeof(sendBuff), stdin);
+						sendBuff[strcspn(sendBuff, "\n")] = '\0';
+						send(s, sendBuff, sizeof(sendBuff), 0);
+
+						// Recibir petición de cantidad
+						memset(recvBuff, 0, sizeof(recvBuff));
+						recv(s, recvBuff, sizeof(recvBuff), 0);
+						printf("%s ", recvBuff);
+
+						// Enviar cantidad
+						fgets(sendBuff, sizeof(sendBuff), stdin);
+						sendBuff[strcspn(sendBuff, "\n")] = '\0';
+						send(s, sendBuff, sizeof(sendBuff), 0);
+
+						// Recibir confirmación de producto añadido o error
+						memset(recvBuff, 0, sizeof(recvBuff));
+						recv(s, recvBuff, sizeof(recvBuff), 0);
+						printf("%s\n", recvBuff);
+
+						// Preguntar si desea continuar
+						memset(recvBuff, 0, sizeof(recvBuff));
+						recv(s, recvBuff, sizeof(recvBuff), 0);
+						printf("%s ", recvBuff);
+
+						fgets(sendBuff, sizeof(sendBuff), stdin);
+						sendBuff[strcspn(sendBuff, "\n")] = '\0';
+						send(s, sendBuff, sizeof(sendBuff), 0);
+
+						if (sendBuff[0] == 'n' || sendBuff[0] == 'N') {
+							// Recibir mensaje final
+							memset(recvBuff, 0, sizeof(recvBuff));
+							recv(s, recvBuff, sizeof(recvBuff), 0);
+							printf("%s\n", recvBuff);
+							break;
+						}
+					}
+				}
+
+		if (c == '6')
 		{
 			// SENDING command EXIT
 			strcpy(sendBuff, "EXIT");
 			send(s, sendBuff, sizeof(sendBuff), 0);
 		}
-	}while(c != '5');
+
+
+	}while(c != '6');
 
 	// CLOSING the socket and cleaning Winsock...
 	closesocket(s);
