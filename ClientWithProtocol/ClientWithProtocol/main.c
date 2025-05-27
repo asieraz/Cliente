@@ -13,9 +13,10 @@ char menu()
 	printf("1. Sumar (2 + 3 + 5) \n");
 	printf("2. Mostrar productos \n");
 	printf("3. Obtener IP del servidor \n");
-	printf("4. Añadir stock a un producto \n"); // NUEVA OPCIÓN
-	printf("5. Compra \n"); // NUEVA OPCIÓN
-	printf("6. Salir \n\n");
+	printf("4. Anadir stock a un producto \n");
+	printf("5. Compra \n");
+	printf("6. Buscar productos \n");
+	printf("q. Salir \n\n");
 	printf("Opcion: ");
 	char opcion = getchar();
 
@@ -200,7 +201,59 @@ int main(int argc, char *argv[])
 					}
 				}
 
-		if (c == '6')
+		if(c == '6') {
+			// Enviar comando
+			strcpy(sendBuff, "BUSCADOR");
+			send(s, sendBuff, sizeof(sendBuff), 0);
+
+			// Recibir menú de opciones
+			memset(recvBuff, 0, sizeof(recvBuff));
+			recv(s, recvBuff, sizeof(recvBuff), 0);
+			printf("%s", recvBuff);
+
+			// Leer y enviar opción
+			fgets(sendBuff, sizeof(sendBuff), stdin);
+			sendBuff[strcspn(sendBuff, "\n")] = '\0';
+			send(s, sendBuff, sizeof(sendBuff), 0);
+
+			int opcion = atoi(sendBuff);
+
+			if (opcion == 1) {
+				// Buscar por nombre parcial
+				recv(s, recvBuff, sizeof(recvBuff), 0); // prompt
+				printf("%s", recvBuff);
+				fgets(sendBuff, sizeof(sendBuff), stdin);
+				sendBuff[strcspn(sendBuff, "\n")] = '\0';
+				send(s, sendBuff, sizeof(sendBuff), 0);
+			}
+			else if (opcion == 4 || opcion == 5) {
+				// Pregunta mayor/menor
+				recv(s, recvBuff, sizeof(recvBuff), 0); // "mayor o menor"
+				printf("%s", recvBuff);
+				fgets(sendBuff, sizeof(sendBuff), stdin);
+				sendBuff[strcspn(sendBuff, "\n")] = '\0';
+				send(s, sendBuff, sizeof(sendBuff), 0);
+
+				// Pregunta cantidad
+				recv(s, recvBuff, sizeof(recvBuff), 0); // "introduce valor"
+				printf("%s", recvBuff);
+				fgets(sendBuff, sizeof(sendBuff), stdin);
+				sendBuff[strcspn(sendBuff, "\n")] = '\0';
+				send(s, sendBuff, sizeof(sendBuff), 0);
+			}
+
+			// Recibir y mostrar resultados
+			do {
+				memset(recvBuff, 0, sizeof(recvBuff));
+				recv(s, recvBuff, sizeof(recvBuff), 0);
+				if (strcmp(recvBuff, "BUSCADOR-END") != 0) {
+					printf("%s", recvBuff);
+				}
+			}
+			while (strcmp(recvBuff, "BUSCADOR-END") != 0);
+		}
+
+		if (c == 'q')
 		{
 			// SENDING command EXIT
 			strcpy(sendBuff, "EXIT");
@@ -208,7 +261,7 @@ int main(int argc, char *argv[])
 		}
 
 
-	}while(c != '6');
+	}while(c != 'q');
 
 	// CLOSING the socket and cleaning Winsock...
 	closesocket(s);
