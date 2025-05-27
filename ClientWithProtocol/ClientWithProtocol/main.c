@@ -220,11 +220,19 @@ int main(int argc, char *argv[])
 
 			if (opcion == 1) {
 				// Buscar por nombre parcial
-				recv(s, recvBuff, sizeof(recvBuff), 0); // prompt
+				recv(s, recvBuff, sizeof(recvBuff), 0);
 				printf("%s", recvBuff);
 				fgets(sendBuff, sizeof(sendBuff), stdin);
 				sendBuff[strcspn(sendBuff, "\n")] = '\0';
 				send(s, sendBuff, sizeof(sendBuff), 0);
+			}
+			else if (opcion == 2 || opcion == 3) {
+				//Meter valor numerico
+			    recv(s, recvBuff, sizeof(recvBuff), 0);
+			    printf("%s", recvBuff);
+			    fgets(sendBuff, sizeof(sendBuff), stdin);
+			    sendBuff[strcspn(sendBuff, "\n")] = '\0';
+			    send(s, sendBuff, sizeof(sendBuff), 0);
 			}
 			else if (opcion == 4 || opcion == 5) {
 				// Pregunta mayor/menor
