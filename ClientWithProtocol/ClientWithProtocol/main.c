@@ -16,6 +16,7 @@ char menu()
 	printf("4. Anadir stock a un producto \n");
 	printf("5. Compra \n");
 	printf("6. Buscar productos \n");
+	printf("7. Mostrar compras \n");
 	printf("q. Salir \n\n");
 	printf("Opcion: ");
 	char opcion = getchar();
@@ -152,53 +153,58 @@ int main(int argc, char *argv[])
 		}
 
 		if(c == '5') {
-					// Enviar comando al servidor
-					strcpy(sendBuff, "REALIZAR COMPRA");
-					send(s, sendBuff, sizeof(sendBuff), 0);
+				// Enviar comando al servidor
+			    strcpy(sendBuff, "REALIZAR COMPRA");
+			    send(s, sendBuff, sizeof(sendBuff), 0);
 
-					while (1) {
-						// Recibir petición de ID de producto
-						memset(recvBuff, 0, sizeof(recvBuff));
-						recv(s, recvBuff, sizeof(recvBuff), 0);
-						printf("%s ", recvBuff);
+			    // Introducir DNI
+			    memset(recvBuff, 0, sizeof(recvBuff));
+			    recv(s, recvBuff, sizeof(recvBuff), 0);
+			    printf("%s ", recvBuff);
+			    fgets(sendBuff, sizeof(sendBuff), stdin);
+			    sendBuff[strcspn(sendBuff, "\n")] = 0;
+			    send(s, sendBuff, sizeof(sendBuff), 0);
 
-						// Enviar ID de producto
-						fgets(sendBuff, sizeof(sendBuff), stdin);
-						sendBuff[strcspn(sendBuff, "\n")] = '\0';
-						send(s, sendBuff, sizeof(sendBuff), 0);
+			    // Ahora se entra en el bucle de compra
+			    while (1) {
+			        // Pregunta por ID de producto
+			        memset(recvBuff, 0, sizeof(recvBuff));
+			        recv(s, recvBuff, sizeof(recvBuff), 0);
+			        printf("%s ", recvBuff);
+			        fgets(sendBuff, sizeof(sendBuff), stdin);
+			        sendBuff[strcspn(sendBuff, "\n")] = 0;
+			        send(s, sendBuff, sizeof(sendBuff), 0);
 
-						// Recibir petición de cantidad
-						memset(recvBuff, 0, sizeof(recvBuff));
-						recv(s, recvBuff, sizeof(recvBuff), 0);
-						printf("%s ", recvBuff);
+			        // Pregunta por cantidad
+			        memset(recvBuff, 0, sizeof(recvBuff));
+			        recv(s, recvBuff, sizeof(recvBuff), 0);
+			        printf("%s ", recvBuff);
+			        fgets(sendBuff, sizeof(sendBuff), stdin);
+			        sendBuff[strcspn(sendBuff, "\n")] = 0;
+			        send(s, sendBuff, sizeof(sendBuff), 0);
 
-						// Enviar cantidad
-						fgets(sendBuff, sizeof(sendBuff), stdin);
-						sendBuff[strcspn(sendBuff, "\n")] = '\0';
-						send(s, sendBuff, sizeof(sendBuff), 0);
+			        // Recibir confirmación o error
+			        memset(recvBuff, 0, sizeof(recvBuff));
+			        recv(s, recvBuff, sizeof(recvBuff), 0);
+			        printf("%s", recvBuff);
 
-						// Recibir confirmación de producto añadido o error
-						memset(recvBuff, 0, sizeof(recvBuff));
-						recv(s, recvBuff, sizeof(recvBuff), 0);
-						printf("%s\n", recvBuff);
+			        // Preguntar si desea añadir otro
+			        memset(recvBuff, 0, sizeof(recvBuff));
+			        recv(s, recvBuff, sizeof(recvBuff), 0);
+			        printf("%s ", recvBuff);
+			        fgets(sendBuff, sizeof(sendBuff), stdin);
+			        sendBuff[strcspn(sendBuff, "\n")] = 0;
+			        send(s, sendBuff, sizeof(sendBuff), 0);
 
-						// Preguntar si desea continuar
-						memset(recvBuff, 0, sizeof(recvBuff));
-						recv(s, recvBuff, sizeof(recvBuff), 0);
-						printf("%s ", recvBuff);
+			        if (sendBuff[0] == 'n' || sendBuff[0] == 'N') {
+			            break;
+			        }
+			    }
 
-						fgets(sendBuff, sizeof(sendBuff), stdin);
-						sendBuff[strcspn(sendBuff, "\n")] = '\0';
-						send(s, sendBuff, sizeof(sendBuff), 0);
-
-						if (sendBuff[0] == 'n' || sendBuff[0] == 'N') {
-							// Recibir mensaje final
-							memset(recvBuff, 0, sizeof(recvBuff));
-							recv(s, recvBuff, sizeof(recvBuff), 0);
-							printf("%s\n", recvBuff);
-							break;
-						}
-					}
+			    // Mensaje de finalización de la compra
+			    memset(recvBuff, 0, sizeof(recvBuff));
+			    recv(s, recvBuff, sizeof(recvBuff), 0);
+			    printf("%s\n", recvBuff);
 				}
 
 		if(c == '6') {
@@ -259,6 +265,28 @@ int main(int argc, char *argv[])
 				}
 			}
 			while (strcmp(recvBuff, "BUSCADOR-END") != 0);
+		}
+
+		if (c == '7') {
+		    // Enviar comando
+		    strcpy(sendBuff, "COMPRAS CLIENTE");
+		    send(s, sendBuff, sizeof(sendBuff), 0);
+
+		    // Recibir petición de DNI
+		    recv(s, recvBuff, sizeof(recvBuff), 0);
+		    printf("%s ", recvBuff);
+		    fgets(sendBuff, sizeof(sendBuff), stdin);
+		    sendBuff[strcspn(sendBuff, "\n")] = '\0';
+		    send(s, sendBuff, sizeof(sendBuff), 0);
+
+		    // Mostrar resultados
+		    do {
+		        memset(recvBuff, 0, sizeof(recvBuff));
+		        recv(s, recvBuff, sizeof(recvBuff), 0);
+		        if (strcmp(recvBuff, "COMPRAS-END") != 0) {
+		            printf("%s", recvBuff);
+		        }
+		    } while (strcmp(recvBuff, "COMPRAS-END") != 0);
 		}
 
 		if (c == 'q')
